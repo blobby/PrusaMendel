@@ -22,6 +22,10 @@ xend_length=40;
 solid_end_width=3;
 slot_width=1;
 
+zfine_tuning_length=30;
+zfine_tuning_screw_position=25;
+zfine_tuning_screw_hole_diameter = 2.9;
+
 pad_height=5.8;
 pad_width=7;
 pad_connector_height=3.3;
@@ -38,16 +42,21 @@ module xend_side(closed_end=true)
 			// Base with cutted sides
 			difference (){
 				// Base
-				translate([0,xend_length/2,0]) cube([xend_height,xend_length,xend_height],center=true);
-				
+				union() {
+					translate([0,xend_length/2,0]) cube([xend_height,xend_length,xend_height],center=true);
+					translate([0,xend_length + zfine_tuning_length / 2,0]) cube([xend_height,zfine_tuning_length,xend_height],center=true);
+				}
+
+				translate([0,xend_length + zfine_tuning_screw_position,-((xend_height / 2 )+2)]) cylinder(h=xend_height + 4,r=zfine_tuning_screw_hole_diameter / 2,$fn=10);
+
 				// Cutting sides
 				for (i=[0:1])
-					translate([0,xend_length/2,0]) rotate(i*180){
-						translate([-12.5,0,2]) rotate([0,25,0]) cube([10,xend_length+2,20],center=true);
-						translate([-13,0,0]) rotate(a=[0,-10,0]) cube([10,xend_length+2,20],center=true);
+					translate([0,xend_length/2 + zfine_tuning_length / 2,0]) rotate(i*180){
+						translate([-12.5,0,2]) rotate([0,25,0]) cube([10,xend_length+zfine_tuning_length+2,20],center=true);
+						translate([-13,0,0]) rotate(a=[0,-10,0]) cube([10,xend_length+zfine_tuning_length+2,20],center=true);
 				}
 			}
-			
+
 			// Support beams from side to center of x-end
 			translate([-26,xend_length-bushing_support_width,-xend_height/2]) cube([26,bushing_support_width,xend_height]);
 			translate([-26,0,-xend_height/2]) cube([26,rod_support_width,xend_height]);
