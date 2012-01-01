@@ -185,16 +185,18 @@ module wade (hotend_mount=0)
 			cube([wade_block_width,wade_block_height,wade_block_depth]);
 
 			// Filler between wade block and motor mount.
-			translate([10,motor_mount_translation[1]-hole_for_608/2,0])
+			translate([10,motor_mount_translation[1]-hole_for_608/2 - 4,0])
 			cube([wade_block_width,
 				wade_block_height-motor_mount_translation[1]+hole_for_608/2,
 				motor_mount_thickness]);
 
+
 			// Connect block to top of motor mount.
-			linear_extrude(height=motor_mount_thickness)
-			barbell (block_top_right-[0,5],motor_hole(0),5,nema17_support_d/2,100,60);
+			//linear_extrude(height=motor_mount_thickness)
+			//barbell (block_top_right-[0,5],motor_hole(0),5,nema17_support_d/2,100,60);
 
 			//Connect motor mount to base.
+			scale([1,1.5,1])
 			linear_extrude(height=motor_mount_thickness)
 			barbell ([base_length-base_leadout,
 				base_thickness/2],motor_hole(2),base_thickness/2,
@@ -408,37 +410,41 @@ module block_holes()
 	}
 
 	// Idler mounting holes and nut traps.
-	translate([0,
-		idler_mounting_hole_up+motor_mount_translation[1],
-		wade_block_depth/2+idler_mounting_hole_across*-1])
-	rotate([0,90,0])
+	for (idle=[-1,1])
 	{
-		rotate([0,0,30])
+		translate([0,
+			idler_mounting_hole_up+motor_mount_translation[1],
+			wade_block_depth/2+idler_mounting_hole_across*idle])
+		rotate([0,90,0])
 		{
-			translate([0,0,-1])
-			cylinder(r=m4_diameter/2,h=wade_block_depth+6,$fn=6);	
-			translate([0,0,wade_block_width-idler_nut_trap_depth])
-			cylinder(r=m4_nut_diameter/2,h=idler_nut_thickness,$fn=6);	
+			rotate([0,0,30])
+			{
+				translate([0,0,-1])
+				cylinder(r=m4_diameter/2,h=wade_block_depth+6,$fn=6);	
+				translate([0,0,wade_block_width-idler_nut_trap_depth])
+				cylinder(r=m4_nut_diameter/2,h=idler_nut_thickness,$fn=6);	
+			}
+			translate([0,10/2,wade_block_width-idler_nut_trap_depth+idler_nut_thickness/2 + 2])
+			cube([m3_nut_diameter*cos(30) + 6,18,idler_nut_thickness + 2],center=true);
 		}
-		translate([0,10/2,wade_block_width-idler_nut_trap_depth+idler_nut_thickness/2])
-		cube([m3_nut_diameter*cos(30) + 8,18,idler_nut_thickness + 3],center=true);
-	}
-
-	translate([0,
-		idler_mounting_hole_up+motor_mount_translation[1],
-		wade_block_depth/2+idler_mounting_hole_across])
-	rotate([0,90,0])
-	{
-		rotate([0,0,30])
+	
+		translate([0,
+			idler_mounting_hole_up+motor_mount_translation[1],
+			wade_block_depth/2+idler_mounting_hole_across])
+		rotate([0,90,0])
 		{
-			translate([0,0,-1])
-			cylinder(r=m4_diameter/2,h=wade_block_depth+6,$fn=6);	
+			rotate([0,0,30])
+			{
+				translate([0,0,-1])
+				cylinder(r=m4_diameter/2,h=wade_block_depth+6,$fn=6);	
+			}
 		}
 	}
 }
 
 module motor_mount()
 {
+	translate([-2, 10, 0])
 	linear_extrude(height=motor_mount_thickness)
 	{
 		barbell (motor_hole(0),motor_hole(1),nema17_support_d/2,
@@ -454,6 +460,7 @@ module motor_mount_holes()
 	slot_left=1;
 	slot_right=2;
 
+	translate([-3, 10, 0])
 	{
 		translate([0,0,screw_head_recess_depth+layer_height])
 		for (hole=[0:2])
